@@ -21,44 +21,61 @@ export const App = () => {
     }
     setSearchName(normilizedName)
   }
-
   const onClickLoadMore = () => {
     setPage(page + 1);
   }
 
+    useEffect(() => {
+      if(!searchName) {
+        return
+      } 
+      setPage(1);
+    }, [searchName])
 
-  useEffect(() => {
+    useEffect(() => {
     if(!searchName) {
       return
-    }
-    setStatus('pending');
-    setPage(1);
-
-    fetch(`https://pixabay.com/api/?q=${searchName}&page=1&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`)
-    .then(resp => resp.json())
-    .then(data => {
-      if(data.hits.length === 0) {
-          alert('Picture not faund');
-          setStatus('idle');
-        return
+    } 
+      if(page === 1) {
+        setStatus('pending');
+        async function fetchData() {
+          const fetching = await fetch(`https://pixabay.com/api/?q=${searchName}&page=1&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`)
+          .then(resp => resp.json())
+          .then(data => {
+            if(data.hits.length === 0) {
+                alert('Picture not faund');
+                setStatus('idle');
+              return
+              }
+            setImages(data.hits);
+            setStatus('resolved');
+          })
+            .catch(erorr => alert(erorr));
+            return fetching;
         }
-      setImages(data.hits);
-      setStatus('resolved');
-    })
-      .catch(erorr => alert(erorr))
-  }, [searchName])
+        fetchData();
+      }
+      else {
+        fetch(`https://pixabay.com/api/?q=${searchName}&page=1&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=${page * 12}`)
+        .then(resp => resp.json())
+        .then(data => {
+          setImages(data.hits);
+          setStatus('resolved');})
+        .catch(erorr => alert(erorr))
+      }
+    } , [searchName, page])
 
-  useEffect(() => {
-    if(page === 1 || !searchName) {
-      return
-    }
-    fetch(`https://pixabay.com/api/?q=${searchName}&page=1&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=${page * 12}`)
-    .then(resp => resp.json())
-    .then(data => {
-      setImages(data.hits);
-      setStatus('resolved');})
-    .catch(erorr => alert(erorr))
-}, [page]);
+//   useEffect(() => {
+//     if(page === 1) {
+//       return
+//     }
+//     fetch(`https://pixabay.com/api/?q=${searchName}&page=1&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=${page * 12}`)
+//     .then(resp => resp.json())
+//     .then(data => {
+//       setImages(data.hits);
+//       setStatus('resolved');})
+//     .catch(erorr => alert(erorr))
+// }, [page]);
 
     return (
       <div className={css.App}>
