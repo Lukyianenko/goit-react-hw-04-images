@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { useState, useEffect } from "react";
 import css from './SearchImg/styles.module.css';
 import { Audio } from 'react-loader-spinner';
 import { Searchbar } from './SearchImg/Searchbar';
@@ -7,92 +7,69 @@ import { Button } from './SearchImg/Button';
 
 const API_KEY = '33017005-3089560dbf89e85a2a48421c2';
 
-class App extends Component {
-  state = {
-    searchName: '',
-    images: null,
-    status: 'idle',
-    page: 1,
-  }
+export const App = () => {
+  const [searchName, setSearchName] = useState('');
+  const [images, setImages] = useState(null);
+  const [status, setStatus] = useState('idle');
+  const [page, setPage] = useState(1);
 
-  reset = () => {
-    this.setState({
-      searchName: '',
-    })
-  }
-
-  onSubmitSaveName = (search) => {
+  const onSubmitSaveName = (search) => {
     const normilizedName = search.name.toLowerCase().trim();
     if(normilizedName === '') {
       alert('Please, enter a search name');
       return
     }
-    this.setState({
-      searchName: normilizedName
+    setSearchName(normilizedName)
+  }
+
+  const onClickLoadMore = () => {
+    setPage(page + 1);
+    console.log(page);
+  }
+
+
+  useEffect(() => {
+    if(!searchName) {
+      return
+    }
+    setStatus('pending');
+    setPage(1);
+
+    fetch(`https://pixabay.com/api/?q=${searchName}&page=1&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`)
+    .then(resp => resp.json())
+    .then(data => {
+      if(data.hits.length === 0) {
+          alert('Picture not faund');
+          setStatus('idle');
+        return
+        }
+      setImages(data.hits);
+      setStatus('resolved');
     })
-  }
-
-  onClickLoadMore = () => {
-    this.setState(prevState => (
-      { page: prevState.page + 1 }
-    ))
-  }
-
-  async componentDidUpdate(prevProps, prevState) {
-    if(prevState.searchName !== this.state.searchName) {
-      this.setState({
-        status: 'pending',
-        page: 1,
-      })
-
-      fetch(`https://pixabay.com/api/?q=${this.state.searchName}&page=${this.state.page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`)
-      .then(resp => resp.json())
-      .then(data => {
-        if(data.hits.length === 0) {
-          if(prevState.searchName === this.state.searchName) {
-            alert('Picture not faund');
-          this.setState({ status: 'idle' });
-          return
-          } else {
-            alert('Picture not faund');
-          this.setState({ status: 'idle' });
-          return
-          }
-          
-        }
-        this.setState({ images: data.hits, status: 'resolved' })})
-        .catch(erorr => alert(erorr))
-    }
-    if(prevState.page + 1 === this.state.page) {
-      fetch(`https://pixabay.com/api/?q=${this.state.searchName}&page=1&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=${this.state.page * 12}`)
-      .then(resp => resp.json())
-      .then(data => {
-        if(data.hits.length === 0) {
-          alert('Picture no faund')
-          return
-        }
-        this.setState({ images: data.hits, status: 'resolved' })})
       .catch(erorr => alert(erorr))
+  }, [searchName])
+
+  useEffect(() => {
+    if(page === 1 || !searchName) {
+      return
     }
-  }
+    fetch(`https://pixabay.com/api/?q=${searchName}&page=1&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=${page * 12}`)
+    .then(resp => resp.json())
+    .then(data => {
+      setImages(data.hits);
+      setStatus('resolved');})
+    .catch(erorr => alert(erorr))
+}, [page]);
 
-
-  render() {
-   const { status } =this.state
     return (
       <div className={css.App}>
-        <Searchbar onSubmit={this.onSubmitSaveName}/>
+        <Searchbar onSubmit={onSubmitSaveName}/>
         {status === 'resolved' && <>
-          <ImageGallery images={this.state.images} onLargeImage={this.onLargeImage}/>
-          <Button pageClick={this.onClickLoadMore}/>
+          <ImageGallery images={images} />
+          <Button pageClick={onClickLoadMore}/>
           </>
         }
         { status === 'pending' &&  <Audio /> }
-
       </div>
-    );
-  }
-  
+    );  
 };
-
-export default App;
