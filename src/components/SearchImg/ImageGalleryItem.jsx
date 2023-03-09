@@ -1,20 +1,15 @@
 import css from './styles.module.css';
-import { Component } from "react";
 import PropTypes from 'prop-types';
 
-class ImageGalleryItem extends Component {
-render() {
-    const { images, loadId } = this.props;
-   
-    return (
-        images.map(image => (
-    <li className={css.ImageGalleryItem} key={image.id} onClick={() => loadId(image.id)}>
-        <img src={image.webformatURL} alt={image.tags} className={css.ImageGalleryItemImage} />
+export const ImageGalleryItem = ({ images, loadId }) => (
+        images.map(({ id, webformatURL, tags }) => (
+    <li className={css.ImageGalleryItem} key={id} onClick={() => loadId(id)}>
+        <img src={webformatURL} alt={tags} className={css.ImageGalleryItemImage} />
     </li>
+        )
     )
-))   
-}
-}
+)   
+
 
 ImageGalleryItem.propTypes = {
     image: PropTypes.arrayOf(PropTypes.exact({
@@ -23,5 +18,3 @@ ImageGalleryItem.propTypes = {
         tags: PropTypes.string.isRequired,
     }))
 }
-
-export default ImageGalleryItem;

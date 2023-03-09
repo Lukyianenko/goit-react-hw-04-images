@@ -1,7 +1,7 @@
 import { Component } from "react";
 import css from './SearchImg/styles.module.css';
 import { Audio } from 'react-loader-spinner';
-import Searchbar from './SearchImg/Searchbar';
+import { Searchbar } from './SearchImg/Searchbar';
 import { ImageGallery } from './SearchImg/ImageGallery';
 import { Button } from './SearchImg/Button';
 

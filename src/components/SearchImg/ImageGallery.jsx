@@ -1,37 +1,30 @@
 import css from './styles.module.css';
-import { Component } from "react";
+import { useState } from "react";
 import PropTypes from 'prop-types';
-import ImageGalleryItem from './ImageGalleryItem';
+import { ImageGalleryItem } from './ImageGalleryItem';
 import { Modal } from './Modal';
 
-export class ImageGallery extends Component {
-    state = {
-        id: null,
-        isOpen: 'false',
+export const ImageGallery = ({ images, onLargeImage }) => {
+    const [id, setId] = useState(null);
+    const [isOpen, setIsOpen] = useState('false');
+
+    const onLoadId = id => {
+        setId(id);
+        setIsOpen('true');
     }
 
-    onLoadId= id => {
-        this.setState({
-            id: id,
-            isOpen: 'true',
-        })
+    const onClose = isClose => {
+        setIsOpen(isClose);
     }
 
-    onClose = isClose => {
-        this.setState({
-            isOpen: isClose,
-        })
-    }
-
-    render() {
-        const { images, onLargeImage } = this.props;
-        return(<ul className={css.ImageGallery}>
-            <ImageGalleryItem images={images} onLargeImage={onLargeImage} loadId={this.onLoadId}/>
-            {this.state.isOpen === 'true' && <Modal images={images} id={this.state.id} onClose={this.onClose}/>}
+    return(
+        <ul className={css.ImageGallery}>
+            <ImageGalleryItem images={images} onLargeImage={onLargeImage} loadId={onLoadId}/>
+            {isOpen === 'true' && <Modal images={images} id={id} onClose={onClose}/>}
         </ul>
-        )
-    } 
-}
+    )
+} 
+
 
 ImageGallery.propTypes = {
     images: PropTypes.array.isRequired,
