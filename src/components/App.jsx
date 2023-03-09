@@ -65,17 +65,6 @@ export const App = () => {
       }
     } , [searchName, page])
 
-//   useEffect(() => {
-//     if(page === 1) {
-//       return
-//     }
-//     fetch(`https://pixabay.com/api/?q=${searchName}&page=1&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=${page * 12}`)
-//     .then(resp => resp.json())
-//     .then(data => {
-//       setImages(data.hits);
-//       setStatus('resolved');})
-//     .catch(erorr => alert(erorr))
-// }, [page]);
 
     return (
       <div className={css.App}>
