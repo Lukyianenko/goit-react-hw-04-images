@@ -24,7 +24,6 @@ export const App = () => {
 
   const onClickLoadMore = () => {
     setPage(page + 1);
-    console.log(page);
   }
 
 
